@@ -1,0 +1,18 @@
+{
+  "name": "Pastel Tasks & Focus",
+  "short_name": "Tasks",
+  "description": "Ứng dụng quản lý công việc, Pomodoro Focus và theo dõi thói quen phong cách Pastel",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F1F4F9",
+  "theme_color": "#2563EB",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
