@@ -13,9 +13,15 @@ import {
   LogIn,
   LogOut,
   CloudCheck,
-  ChevronDown
+  ChevronDown,
+  Crown,
+  Sparkles,
+  Layers,
+  Bot,
+  Headphones
 } from 'lucide-react';
 import type { TabType, ThemeMode, User } from '../types';
+import { LofiPlayer } from './LofiPlayer';
 
 interface NavbarProps {
   currentTab: TabType;
@@ -31,6 +37,10 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenInstallModal: () => void;
+  onOpenProModal: () => void;
+  onOpenTemplatesModal: () => void;
+  onOpenAIModal: () => void;
+  isPro?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -47,9 +57,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuth,
   onLogout,
   onOpenInstallModal,
+  onOpenProModal,
+  onOpenTemplatesModal,
+  onOpenAIModal,
+  isPro = false,
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLofiPopover, setShowLofiPopover] = useState(false);
   const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const userIsPro = isPro || Boolean(user?.isPro);
 
   return (
     <>
@@ -57,14 +73,20 @@ export const Navbar: React.FC<NavbarProps> = ({
       <header className="max-w-5xl mx-auto w-full pt-8 pb-4 px-6 select-none relative z-30">
         <div className="flex items-center justify-between">
           {/* Brand & Title */}
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                 Tasks
               </h1>
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse mt-1" />
+              {userIsPro && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 text-[10px] font-black uppercase tracking-wider shadow-xs animate-pulse">
+                  <Crown className="w-3 h-3 fill-amber-900 text-amber-900" />
+                  <span>PRO</span>
+                </span>
+              )}
             </div>
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-400 mt-0.5">
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-400 mt-0.5 hidden sm:block">
               {totalCount > 0 
                 ? `Create your categorised task boards • ${completedCount} of ${totalCount} completed (${percent}%)`
                 : 'Create your categorised task boards • Bắt đầu tạo công việc đầu tiên'}
@@ -111,11 +133,72 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Right Floating Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {/* Pro Upgrade / Pro VIP Badge */}
+            <button
+              onClick={onOpenProModal}
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                userIsPro
+                  ? 'bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-300 text-amber-950 shadow-amber-400/25 ring-2 ring-amber-300/60'
+                  : 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-white shadow-amber-500/25'
+              }`}
+              title={userIsPro ? 'Tài khoản PRO Vĩnh Viễn' : 'Nâng cấp tài khoản PRO với VietQR'}
+            >
+              <Crown className={`w-3.5 h-3.5 ${userIsPro ? 'fill-amber-900 text-amber-900' : 'fill-white'}`} />
+              <span className="hidden sm:inline">{userIsPro ? 'PRO VIP' : 'Nâng cấp Pro'}</span>
+              <span className="sm:hidden">PRO</span>
+            </button>
+
+            {/* AI Assistant Button */}
+            <button
+              onClick={onOpenAIModal}
+              className="hidden lg:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all hover:scale-105 active:scale-95 shadow-xs"
+              title="Trợ lý AI Lên lịch thông minh"
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>Trợ lý AI</span>
+            </button>
+
+            {/* Templates Library Button */}
+            <button
+              onClick={onOpenTemplatesModal}
+              className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 active:scale-95 shadow-xs"
+              title="Kho Thư viện Mẫu Công việc"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Kho Mẫu</span>
+            </button>
+
+            {/* Lofi Sound Button & Popover */}
+            <div className="relative">
+              <button
+                onClick={() => setShowLofiPopover(!showLofiPopover)}
+                className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-xs transition-all hover:scale-105 active:scale-95 ${
+                  showLofiPopover
+                    ? 'bg-purple-600 text-white border-purple-600 shadow-purple-500/25'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-purple-600'
+                }`}
+                title="Âm thanh tập trung Pomodoro (Mưa, Sóng biển, Cafe, Lofi)"
+                aria-label="Lofi sound player"
+              >
+                <Headphones className="w-4 h-4" />
+              </button>
+
+              {/* Lofi Popover Modal */}
+              {showLofiPopover && (
+                <div 
+                  className="absolute right-0 mt-2 w-80 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <LofiPlayer />
+                </div>
+              )}
+            </div>
+
             {/* Streak pill synced with Habits */}
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-3.5 py-2 rounded-full border border-amber-200/60 dark:border-amber-800/40 shadow-xs">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 rounded-full border border-amber-200/60 dark:border-amber-800/40 shadow-xs">
               <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
-              <span>{streak}d Streak</span>
+              <span>{streak}d</span>
             </div>
 
             {/* Install to Phone Button */}
@@ -132,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {onResetAllData && (
               <button
                 onClick={onResetAllData}
-                className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-xs hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all hover:scale-105 active:scale-95"
+                className="hidden sm:flex w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 items-center justify-center shadow-xs hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all hover:scale-105 active:scale-95"
                 title="Đặt lại toàn bộ dữ liệu về trạng thái ban đầu"
                 aria-label="Reset all data"
               >
@@ -169,6 +252,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-100 max-w-[80px] truncate hidden sm:inline">
                     {user.name}
                   </span>
+                  {userIsPro && (
+                    <Crown className="w-3 h-3 fill-amber-500 text-amber-500 shrink-0" />
+                  )}
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
 
@@ -185,10 +271,38 @@ export const Navbar: React.FC<NavbarProps> = ({
                         className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-slate-700 object-cover"
                       />
                       <div className="overflow-hidden">
-                        <p className="text-xs font-black truncate">{user.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-black truncate">{user.name}</p>
+                          {userIsPro && (
+                            <span className="px-1.5 py-0.2 rounded bg-amber-400 text-amber-950 font-black text-[9px]">
+                              PRO
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[11px] text-slate-400 truncate">{user.email || user.phone}</p>
                       </div>
                     </div>
+
+                    {userIsPro ? (
+                      <div className="flex items-center gap-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-bold border border-amber-200/60 dark:border-amber-800/40">
+                        <Crown className="w-4 h-4 fill-amber-500 text-amber-500 shrink-0" />
+                        <span>Tài khoản PRO Vĩnh Viễn</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          onOpenProModal();
+                        }}
+                        className="w-full flex items-center justify-between p-2 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200/60 dark:border-amber-800/40 hover:scale-[1.02] transition-all"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Crown className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          <span>Nâng cấp PRO</span>
+                        </span>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      </button>
+                    )}
 
                     <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
                       <CloudCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -222,10 +336,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 sm:px-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/25 transition-all hover:scale-105 active:scale-95"
+                title="Đăng nhập"
               >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Đăng nhập</span>
+                <LogIn className="w-4 h-4" />
+                <span className="hidden sm:inline">Đăng nhập</span>
               </button>
             )}
           </div>
@@ -233,11 +348,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       </header>
 
       {/* Mobile Floating Bottom Bar */}
-      <div className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-sm bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full shadow-2xl shadow-blue-900/15 border border-slate-200/80 dark:border-slate-700/80 px-5 py-2.5 flex items-center justify-between">
+      <div className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-sm bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-full shadow-2xl shadow-blue-900/15 border border-slate-200/80 dark:border-slate-700/80 px-4 py-2 flex items-center justify-between">
         {/* Tasks Tab */}
         <button
           onClick={() => onSelectTab('todo')}
           className="flex flex-col items-center gap-0.5 relative py-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors"
+          title="Tasks"
         >
           <Home className={`w-5 h-5 ${currentTab === 'todo' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
           {currentTab === 'todo' && (
@@ -249,6 +365,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => onSelectTab('today')}
           className="flex flex-col items-center gap-0.5 relative py-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors"
+          title="To Day"
         >
           <Calendar className={`w-5 h-5 ${currentTab === 'today' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
           {currentTab === 'today' && (
@@ -259,16 +376,26 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Center Floating Elevated Blue Plus Button on Mobile */}
         <button
           onClick={onOpenNewTaskModal}
-          className="w-12 h-12 -mt-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all border-4 border-[#f1f4f9] dark:border-[#0f172a]"
+          className="w-11 h-11 -mt-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/40 hover:scale-105 active:scale-95 transition-all border-3 border-[#f1f4f9] dark:border-[#0f172a]"
           title="Thêm công việc mới"
         >
-          <Plus className="w-6 h-6 stroke-[3]" />
+          <Plus className="w-5 h-5 stroke-[3]" />
+        </button>
+
+        {/* AI Assistant / Templates on Mobile */}
+        <button
+          onClick={onOpenAIModal}
+          className="flex flex-col items-center gap-0.5 relative py-1 text-indigo-600 dark:text-indigo-400 transition-colors"
+          title="Trợ lý AI"
+        >
+          <Bot className="w-5 h-5" />
         </button>
 
         {/* Habits Tab */}
         <button
           onClick={() => onSelectTab('contributions')}
           className="flex flex-col items-center gap-0.5 relative py-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors"
+          title="Habits"
         >
           <Activity className={`w-5 h-5 ${currentTab === 'contributions' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
           {currentTab === 'contributions' && (
@@ -276,23 +403,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </button>
 
-        {/* User Account or Install on Mobile */}
+        {/* Pro / User on Mobile */}
         <button
-          onClick={user ? onOpenInstallModal : onOpenAuth}
-          className="flex flex-col items-center gap-0.5 relative py-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors"
-          title={user ? 'Cài đặt app điện thoại' : 'Đăng nhập'}
+          onClick={onOpenProModal}
+          className="flex flex-col items-center gap-0.5 relative py-1 text-amber-500 transition-colors"
+          title="Nâng cấp Pro"
         >
-          {user ? (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-6 h-6 rounded-full border border-blue-500"
-            />
-          ) : (
-            <LogIn className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-          )}
+          <Crown className="w-5 h-5 fill-amber-500" />
         </button>
       </div>
     </>
   );
 };
+

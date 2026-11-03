@@ -72,6 +72,24 @@ export interface User {
   avatar?: string;
   provider: 'google' | 'phone' | 'email';
   createdAt: string;
+  isPro?: boolean;
+  proPlan?: 'monthly' | 'lifetime';
+  proSince?: string;
+}
+
+export type SoundType = 'rain' | 'waves' | 'cafe' | 'lofi';
+
+export interface TemplateBoard {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  pastelBg: string;
+  textColor: string;
+  darkBg?: string;
+  darkTextColor?: string;
+  icon: 'book-open' | 'dumbbell' | 'sparkles' | 'coffee' | 'folder' | 'code' | 'droplets';
+  tasks: Array<Omit<Task, 'id' | 'completed'>>;
 }
 
 export interface UserData {

@@ -6,7 +6,9 @@ import {
   Clock, 
   FolderPlus,
   Pencil,
-  CalendarDays
+  CalendarDays,
+  Layers,
+  Bot
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Task, Project, ThemeMode } from '../types';
@@ -26,6 +28,8 @@ interface TodoViewProps {
   onDeleteProject: (projectId: string) => void;
   onNavigateToSchedule: (projectName: string) => void;
   theme: ThemeMode;
+  onOpenTemplatesModal?: () => void;
+  onOpenAIModal?: () => void;
 }
 
 export const TodoView: React.FC<TodoViewProps> = ({
@@ -41,6 +45,8 @@ export const TodoView: React.FC<TodoViewProps> = ({
   onDeleteProject,
   onNavigateToSchedule,
   theme,
+  onOpenTemplatesModal,
+  onOpenAIModal,
 }) => {
   const [showAddBoardInput, setShowAddBoardInput] = useState(false);
   const [newBoardName, setNewBoardName] = useState('');
@@ -247,7 +253,7 @@ export const TodoView: React.FC<TodoViewProps> = ({
       </div>
 
       {/* Switcher Dots and Add Board */}
-      <div className="flex items-center justify-center gap-2 mt-6">
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
         {projects.map((p) => (
           <button
             key={p.id}
@@ -274,14 +280,38 @@ export const TodoView: React.FC<TodoViewProps> = ({
             />
           </form>
         ) : (
-          <button
-            onClick={() => setShowAddBoardInput(true)}
-            className="ml-2 text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 font-bold px-2 py-1 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all"
-            title="Thêm thư mục/bảng mới"
-          >
-            <FolderPlus className="w-3.5 h-3.5" />
-            <span>Thêm board</span>
-          </button>
+          <div className="flex items-center gap-1.5 ml-2">
+            <button
+              onClick={() => setShowAddBoardInput(true)}
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 font-bold px-2 py-1 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all"
+              title="Thêm thư mục/bảng mới"
+            >
+              <FolderPlus className="w-3.5 h-3.5" />
+              <span>Thêm board</span>
+            </button>
+
+            {onOpenTemplatesModal && (
+              <button
+                onClick={onOpenTemplatesModal}
+                className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 font-bold px-2.5 py-1 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all bg-white/40 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 shadow-2xs"
+                title="Chọn từ thư viện mẫu công việc có sẵn"
+              >
+                <Layers className="w-3.5 h-3.5 text-blue-500" />
+                <span>Kho Mẫu</span>
+              </button>
+            )}
+
+            {onOpenAIModal && (
+              <button
+                onClick={onOpenAIModal}
+                className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 font-bold px-2.5 py-1 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-all bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/50 dark:border-indigo-800/40 shadow-2xs"
+                title="Dùng AI phân rã mục tiêu và tạo Board mới"
+              >
+                <Bot className="w-3.5 h-3.5" />
+                <span>AI Tạo Board</span>
+              </button>
+            )}
+          </div>
         )}
       </div>
 

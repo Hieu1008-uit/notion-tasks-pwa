@@ -6,6 +6,9 @@ import { ContributionsView } from './components/ContributionsView';
 import { NewTaskModal } from './components/NewTaskModal';
 import { AuthModal } from './components/AuthModal';
 import { InstallAppModal } from './components/InstallAppModal';
+import { ProModal } from './components/ProModal';
+import { TemplatesModal } from './components/TemplatesModal';
+import { AIAssistantModal } from './components/AIAssistantModal';
 import type { TabType, Task, Project, ThemeMode, User, UserData } from './types';
 import { INITIAL_TASKS, INITIAL_PROJECTS } from './data/mockData';
 import { ApiClient } from './services/api';
@@ -25,6 +28,14 @@ export function App() {
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isProModalOpen, setIsProModalOpen] = useState(false);
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [isAIAssistantModalOpen, setIsAIAssistantModalOpen] = useState(false);
+
+  // Pro status state
+  const [isPro, setIsPro] = useState<boolean>(() => {
+    return localStorage.getItem('pastel_is_pro') === 'true';
+  });
 
   // Theme Mode (Light / Dark)
   const [theme, setTheme] = useState<ThemeMode>(() => {
@@ -349,11 +360,53 @@ export function App() {
     }
   };
 
+  // Upgrade to Pro handler (VietQR MBBank payment confirmation)
+  const handleProUpgradeSuccess = (plan: 'monthly' | 'lifetime') => {
+    setIsPro(true);
+    localStorage.setItem('pastel_is_pro', 'true');
+    if (currentUser) {
+      const updatedUser: User = {
+        ...currentUser,
+        isPro: true,
+        proPlan: plan,
+        proSince: new Date().toISOString()
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('pastel_current_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  // Apply Pre-made Template handler
+  const handleApplyTemplate = (newBoard: Project, newTasks: Task[]) => {
+    setProjects(prev => {
+      const filtered = prev.filter(p => p.id !== newBoard.id);
+      return [...filtered, newBoard];
+    });
+    setTasks(prev => [...newTasks, ...prev]);
+    setActiveProjectId(newBoard.id);
+    setCurrentTab('todo');
+  };
+
+  // Apply AI Assistant Schedule Plan
+  const handleApplyAIPlan = (newBoard: Project, newTasks: Task[]) => {
+    setProjects(prev => {
+      const exists = prev.some(p => p.name.toLowerCase() === newBoard.name.toLowerCase());
+      if (exists) return prev;
+      return [...prev, newBoard];
+    });
+    setTasks(prev => [...newTasks, ...prev]);
+    setActiveProjectId(newBoard.id);
+    setFilterProject(newBoard.name);
+    setCurrentTab('today');
+  };
+
   const completedCount = tasks.filter(t => t.completed).length;
 
   const maxStreak = projects.length > 0
     ? Math.max(0, ...projects.map(p => p.streak || 0))
     : 0;
+
+  const userIsPro = isPro || Boolean(currentUser?.isPro);
 
   return (
     <div className="min-h-screen bg-[#f1f4f9] dark:bg-[#0f172a] text-[#1e293b] dark:text-[#f8fafc] flex flex-col font-sans selection:bg-blue-100 selection:text-blue-700 transition-colors duration-250">
@@ -375,10 +428,14 @@ export function App() {
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
         onOpenInstallModal={() => setIsInstallModalOpen(true)}
+        onOpenProModal={() => setIsProModalOpen(true)}
+        onOpenTemplatesModal={() => setIsTemplatesModalOpen(true)}
+        onOpenAIModal={() => setIsAIAssistantModalOpen(true)}
+        isPro={userIsPro}
       />
 
       {/* Main Responsive Canvas */}
-      <main className="max-w-5xl w-full mx-auto px-6 flex-1">
+      <main className="max-w-5xl w-full mx-auto px-6 flex-1 pb-28 md:pb-8">
         {currentTab === 'today' && (
           <TodayView
             tasks={tasks}
@@ -396,6 +453,8 @@ export function App() {
             onAdjustSeconds={handleAdjustSeconds}
             onSetCustomMinutes={handleSetCustomMinutes}
             theme={theme}
+            onOpenAIModal={() => setIsAIAssistantModalOpen(true)}
+            onOpenTemplatesModal={() => setIsTemplatesModalOpen(true)}
           />
         )}
 
@@ -413,6 +472,8 @@ export function App() {
             onDeleteProject={handleDeleteProject}
             onNavigateToSchedule={handleNavigateToSchedule}
             theme={theme}
+            onOpenTemplatesModal={() => setIsTemplatesModalOpen(true)}
+            onOpenAIModal={() => setIsAIAssistantModalOpen(true)}
           />
         )}
 
@@ -446,6 +507,27 @@ export function App() {
       <InstallAppModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
+      />
+
+      <ProModal
+        isOpen={isProModalOpen}
+        onClose={() => setIsProModalOpen(false)}
+        onUpgradeSuccess={handleProUpgradeSuccess}
+        user={currentUser}
+        isAlreadyPro={userIsPro}
+      />
+
+      <TemplatesModal
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
+        onApplyTemplate={handleApplyTemplate}
+      />
+
+      <AIAssistantModal
+        isOpen={isAIAssistantModalOpen}
+        onClose={() => setIsAIAssistantModalOpen(false)}
+        onApplyPlan={handleApplyAIPlan}
+        existingProjects={projects}
       />
     </div>
   );
