@@ -8,7 +8,9 @@ import {
   Pencil,
   CalendarDays,
   Layers,
-  Bot
+  Bot,
+  Mic,
+  Crown
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Task, Project, ThemeMode } from '../types';
@@ -30,6 +32,9 @@ interface TodoViewProps {
   theme: ThemeMode;
   onOpenTemplatesModal?: () => void;
   onOpenAIModal?: () => void;
+  onOpenVoiceModal?: () => void;
+  isPro?: boolean;
+  onOpenProModal?: () => void;
 }
 
 export const TodoView: React.FC<TodoViewProps> = ({
@@ -47,10 +52,16 @@ export const TodoView: React.FC<TodoViewProps> = ({
   theme,
   onOpenTemplatesModal,
   onOpenAIModal,
+  onOpenVoiceModal,
+  isPro = false,
+  onOpenProModal,
 }) => {
   const [showAddBoardInput, setShowAddBoardInput] = useState(false);
   const [newBoardName, setNewBoardName] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const FREE_BOARD_LIMIT = 5;
+  const isAtLimit = !isPro && projects.length >= FREE_BOARD_LIMIT;
 
   const isDark = theme === 'dark';
 
@@ -83,6 +94,11 @@ export const TodoView: React.FC<TodoViewProps> = ({
   const handleCreateBoard = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBoardName.trim()) return;
+    if (isAtLimit) {
+      onOpenProModal?.();
+      setShowAddBoardInput(false);
+      return;
+    }
     const preset = PASTEL_COLOR_PRESETS[projects.length % PASTEL_COLOR_PRESETS.length];
     onAddProject(newBoardName.trim(), preset.color, preset.pastelBg, preset.textColor);
     setNewBoardName('');
@@ -174,17 +190,32 @@ export const TodoView: React.FC<TodoViewProps> = ({
             </div>
 
             {/* Quick add in active folder */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenNewTaskModal();
-              }}
-              style={{ backgroundColor: activeProject.color }}
-              className="text-white text-xs font-bold px-3.5 py-2 rounded-full shadow-sm hover:opacity-90 hover:scale-102 transition-all flex items-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Thêm việc</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {onOpenVoiceModal && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenVoiceModal();
+                  }}
+                  className="text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm hover:opacity-90 hover:scale-102 transition-all flex items-center gap-1 bg-black/20 hover:bg-black/30 backdrop-blur-xs"
+                  title="Lên lịch nhanh bằng giọng nói tiếng Việt"
+                >
+                  <Mic className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Nói để thêm</span>
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenNewTaskModal();
+                }}
+                style={{ backgroundColor: activeProject.color }}
+                className="text-white text-xs font-bold px-3.5 py-2 rounded-full shadow-sm hover:opacity-90 hover:scale-102 transition-all flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Thêm việc</span>
+              </button>
+            </div>
           </div>
 
           {/* Task Items List */}
@@ -280,15 +311,37 @@ export const TodoView: React.FC<TodoViewProps> = ({
             />
           </form>
         ) : (
-          <div className="flex items-center gap-1.5 ml-2">
+          <div className="flex flex-wrap items-center gap-1.5 ml-2">
             <button
-              onClick={() => setShowAddBoardInput(true)}
-              className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 font-bold px-2 py-1 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all"
-              title="Thêm thư mục/bảng mới"
+              onClick={() => {
+                if (isAtLimit) {
+                  onOpenProModal?.();
+                } else {
+                  setShowAddBoardInput(true);
+                }
+              }}
+              className="text-xs text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 font-bold px-2.5 py-1 rounded-full hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shadow-2xs"
+              title={isAtLimit ? 'Đã đạt giới hạn 5 Boards của bản Free. Bấm để nâng cấp PRO' : 'Thêm thư mục/bảng mới'}
             >
-              <FolderPlus className="w-3.5 h-3.5" />
-              <span>Thêm board</span>
+              {isAtLimit ? <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> : <FolderPlus className="w-3.5 h-3.5" />}
+              <span>{isAtLimit ? 'Thêm board (Nâng Pro)' : 'Thêm board'}</span>
+              {!isPro && (
+                <span className="text-[10px] font-black px-1.5 py-0.2 rounded-full bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                  {projects.length}/5
+                </span>
+              )}
             </button>
+
+            {onOpenVoiceModal && (
+              <button
+                onClick={onOpenVoiceModal}
+                className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 font-bold px-2.5 py-1 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-800/40 shadow-2xs"
+                title="Lên lịch nhanh bằng giọng nói tiếng Việt"
+              >
+                <Mic className="w-3.5 h-3.5 text-rose-500" />
+                <span>Nói để lên lịch</span>
+              </button>
+            )}
 
             {onOpenTemplatesModal && (
               <button

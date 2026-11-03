@@ -18,7 +18,9 @@ import {
   Sparkles,
   Layers,
   Bot,
-  Headphones
+  Headphones,
+  Users,
+  Mic
 } from 'lucide-react';
 import type { TabType, ThemeMode, User } from '../types';
 import { LofiPlayer } from './LofiPlayer';
@@ -40,6 +42,9 @@ interface NavbarProps {
   onOpenProModal: () => void;
   onOpenTemplatesModal: () => void;
   onOpenAIModal: () => void;
+  onOpenVoiceModal?: () => void;
+  onOpenStudyRoomModal?: () => void;
+  onOpenWrappedModal?: () => void;
   isPro?: boolean;
 }
 
@@ -60,6 +65,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenProModal,
   onOpenTemplatesModal,
   onOpenAIModal,
+  onOpenVoiceModal,
+  onOpenStudyRoomModal,
+  onOpenWrappedModal,
   isPro = false,
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -70,10 +78,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <>
       {/* Top Header */}
-      <header className="max-w-5xl mx-auto w-full pt-8 pb-4 px-6 select-none relative z-30">
-        <div className="flex items-center justify-between">
+      <header className="max-w-5xl 2xl:max-w-7xl mx-auto w-full pt-8 pb-4 px-6 select-none relative z-30">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Brand & Title */}
-          <div className="min-w-0">
+          <div className="shrink-0 max-w-xs">
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
                 Tasks
@@ -86,7 +94,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               )}
             </div>
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-400 mt-0.5 hidden sm:block">
+            <p 
+              className="text-xs font-medium text-slate-400 dark:text-slate-400 mt-0.5 hidden sm:block truncate"
+              title={totalCount > 0 
+                ? `Create your categorised task boards • ${completedCount} of ${totalCount} completed (${percent}%)`
+                : 'Create your categorised task boards • Bắt đầu tạo công việc đầu tiên'}
+            >
               {totalCount > 0 
                 ? `Create your categorised task boards • ${completedCount} of ${totalCount} completed (${percent}%)`
                 : 'Create your categorised task boards • Bắt đầu tạo công việc đầu tiên'}
@@ -94,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Desktop Navigation Tabs (Soft Floating Pill Style) */}
-          <div className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-800/90 p-1.5 rounded-full shadow-sm border border-slate-100 dark:border-slate-700/70">
+          <div className="hidden md:flex items-center gap-1.5 bg-white dark:bg-slate-800/90 p-1.5 rounded-full shadow-sm border border-slate-100 dark:border-slate-700/70 shrink-0">
             <button
               onClick={() => onSelectTab('today')}
               className={`flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full transition-all ${
@@ -134,6 +147,46 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Floating Actions */}
           <div className="flex items-center gap-2">
+            {/* Study Room UIT Button */}
+            {onOpenStudyRoomModal && (
+              <button
+                onClick={onOpenStudyRoomModal}
+                className="hidden 2xl:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all hover:scale-105 active:scale-95 shadow-xs"
+                title="Phòng học ảo Study With Me & Đua Top YPT UIT"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span>Phòng học UIT</span>
+              </button>
+            )}
+
+            {/* Flex Story Wrapped Button */}
+            {onOpenWrappedModal && (
+              <button
+                onClick={onOpenWrappedModal}
+                className="hidden xl:flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40 hover:bg-purple-100 transition-all hover:scale-105 active:scale-95 shadow-xs"
+                title="Tổng kết năng suất tuần Spotify Wrapped phong cách 9:16"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                <span>Flex Story</span>
+              </button>
+            )}
+
+            {/* Voice Task Button */}
+            {onOpenVoiceModal && (
+              <button
+                onClick={onOpenVoiceModal}
+                className="hidden xl:flex w-9 h-9 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 items-center justify-center shadow-xs hover:bg-rose-100 text-rose-500 transition-all hover:scale-105 active:scale-95"
+                title="Lên lịch bằng giọng nói tiếng Việt"
+                aria-label="Voice schedule"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            )}
+
             {/* Pro Upgrade / Pro VIP Badge */}
             <button
               onClick={onOpenProModal}
@@ -145,14 +198,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               title={userIsPro ? 'Tài khoản PRO Vĩnh Viễn' : 'Nâng cấp tài khoản PRO với VietQR'}
             >
               <Crown className={`w-3.5 h-3.5 ${userIsPro ? 'fill-amber-900 text-amber-900' : 'fill-white'}`} />
-              <span className="hidden sm:inline">{userIsPro ? 'PRO VIP' : 'Nâng cấp Pro'}</span>
-              <span className="sm:hidden">PRO</span>
+              <span className="hidden lg:inline">{userIsPro ? 'PRO VIP' : 'Nâng cấp Pro'}</span>
+              <span className="lg:hidden">PRO</span>
             </button>
 
             {/* AI Assistant Button */}
             <button
               onClick={onOpenAIModal}
-              className="hidden lg:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all hover:scale-105 active:scale-95 shadow-xs"
+              className="hidden 2xl:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all hover:scale-105 active:scale-95 shadow-xs"
               title="Trợ lý AI Lên lịch thông minh"
             >
               <Bot className="w-3.5 h-3.5" />
@@ -162,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Templates Library Button */}
             <button
               onClick={onOpenTemplatesModal}
-              className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 active:scale-95 shadow-xs"
+              className="hidden 2xl:flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-all hover:scale-105 active:scale-95 shadow-xs"
               title="Kho Thư viện Mẫu Công việc"
             >
               <Layers className="w-3.5 h-3.5" />
@@ -204,7 +257,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Install to Phone Button */}
             <button
               onClick={onOpenInstallModal}
-              className="hidden sm:flex w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 items-center justify-center shadow-xs hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 transition-all hover:scale-105 active:scale-95"
+              className="hidden 2xl:flex w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 items-center justify-center shadow-xs hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 transition-all hover:scale-105 active:scale-95"
               title="Cài đặt ứng dụng về điện thoại (PWA)"
               aria-label="Cài đặt App"
             >
@@ -215,7 +268,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {onResetAllData && (
               <button
                 onClick={onResetAllData}
-                className="hidden sm:flex w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 items-center justify-center shadow-xs hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all hover:scale-105 active:scale-95"
+                className="hidden 2xl:flex w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 items-center justify-center shadow-xs hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all hover:scale-105 active:scale-95"
                 title="Đặt lại toàn bộ dữ liệu về trạng thái ban đầu"
                 aria-label="Reset all data"
               >
@@ -308,6 +361,45 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <CloudCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Đã đồng bộ đám mây</span>
                     </div>
+
+                    {onOpenStudyRoomModal && (
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          onOpenStudyRoomModal();
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/60 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                      >
+                        <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span>Phòng học ảo UIT (28 online)</span>
+                      </button>
+                    )}
+
+                    {onOpenWrappedModal && (
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          onOpenWrappedModal();
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs font-bold text-purple-700 dark:text-purple-300 transition-colors"
+                      >
+                        <Sparkles className="w-4 h-4 text-purple-500" />
+                        <span>Flex Story Wrapped 9:16</span>
+                      </button>
+                    )}
+
+                    {onOpenVoiceModal && (
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          onOpenVoiceModal();
+                        }}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold text-rose-600 dark:text-rose-400 transition-colors"
+                      >
+                        <Mic className="w-4 h-4 text-rose-500" />
+                        <span>Lên lịch bằng Giọng nói</span>
+                      </button>
+                    )}
 
                     <button
                       onClick={() => {

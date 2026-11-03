@@ -9,6 +9,9 @@ import { InstallAppModal } from './components/InstallAppModal';
 import { ProModal } from './components/ProModal';
 import { TemplatesModal } from './components/TemplatesModal';
 import { AIAssistantModal } from './components/AIAssistantModal';
+import { VoiceTaskModal } from './components/VoiceTaskModal';
+import { StudyRoomModal } from './components/StudyRoomModal';
+import { ProductivityWrappedModal } from './components/ProductivityWrappedModal';
 import type { TabType, Task, Project, ThemeMode, User, UserData } from './types';
 import { INITIAL_TASKS, INITIAL_PROJECTS } from './data/mockData';
 import { ApiClient } from './services/api';
@@ -31,6 +34,9 @@ export function App() {
   const [isProModalOpen, setIsProModalOpen] = useState(false);
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [isAIAssistantModalOpen, setIsAIAssistantModalOpen] = useState(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isStudyRoomModalOpen, setIsStudyRoomModalOpen] = useState(false);
+  const [isWrappedModalOpen, setIsWrappedModalOpen] = useState(false);
 
   // Pro status state
   const [isPro, setIsPro] = useState<boolean>(() => {
@@ -262,6 +268,15 @@ export function App() {
     setTasks(prev => [newTask, ...prev]);
   };
 
+  const handleBatchAddTasks = (newTasks: Array<Omit<Task, 'id' | 'completed'>>) => {
+    const createdTasks: Task[] = newTasks.map((t, index) => ({
+      ...t,
+      id: `t-batch-${Date.now()}-${index}`,
+      completed: false,
+    }));
+    setTasks(prev => [...createdTasks, ...prev]);
+  };
+
   // Add new Board (starts clean with 0 streak and {} history)
   const handleAddProject = (name: string, color: string, pastelBg: string, textColor: string) => {
     const newProj: Project = {
@@ -431,6 +446,9 @@ export function App() {
         onOpenProModal={() => setIsProModalOpen(true)}
         onOpenTemplatesModal={() => setIsTemplatesModalOpen(true)}
         onOpenAIModal={() => setIsAIAssistantModalOpen(true)}
+        onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+        onOpenStudyRoomModal={() => setIsStudyRoomModalOpen(true)}
+        onOpenWrappedModal={() => setIsWrappedModalOpen(true)}
         isPro={userIsPro}
       />
 
@@ -455,6 +473,9 @@ export function App() {
             theme={theme}
             onOpenAIModal={() => setIsAIAssistantModalOpen(true)}
             onOpenTemplatesModal={() => setIsTemplatesModalOpen(true)}
+            onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+            onOpenStudyRoomModal={() => setIsStudyRoomModalOpen(true)}
+            onOpenWrappedModal={() => setIsWrappedModalOpen(true)}
           />
         )}
 
@@ -474,6 +495,9 @@ export function App() {
             theme={theme}
             onOpenTemplatesModal={() => setIsTemplatesModalOpen(true)}
             onOpenAIModal={() => setIsAIAssistantModalOpen(true)}
+            onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
+            isPro={userIsPro}
+            onOpenProModal={() => setIsProModalOpen(true)}
           />
         )}
 
@@ -528,6 +552,33 @@ export function App() {
         onClose={() => setIsAIAssistantModalOpen(false)}
         onApplyPlan={handleApplyAIPlan}
         existingProjects={projects}
+      />
+
+      <VoiceTaskModal
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+        onAddBatchTasks={handleBatchAddTasks}
+        projects={projects}
+        currentProjectName={filterProject || undefined}
+      />
+
+      <StudyRoomModal
+        isOpen={isStudyRoomModalOpen}
+        onClose={() => setIsStudyRoomModalOpen(false)}
+        currentUser={currentUser}
+        totalFocusSeconds={totalFocusSeconds}
+        isTimerRunning={isTimerRunning}
+        activeTask={tasks.find(t => t.id === activeTaskId)}
+      />
+
+      <ProductivityWrappedModal
+        isOpen={isWrappedModalOpen}
+        onClose={() => setIsWrappedModalOpen(false)}
+        user={currentUser}
+        tasks={tasks}
+        projects={projects}
+        totalFocusSeconds={totalFocusSeconds}
+        streak={maxStreak}
       />
     </div>
   );

@@ -101,7 +101,10 @@ export const ProModal: React.FC<ProModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div 
         className="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-100 dark:border-slate-700 p-6 md:p-8 relative select-none"
         onClick={(e) => e.stopPropagation()}
@@ -109,6 +112,8 @@ export const ProModal: React.FC<ProModalProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Đóng modal"
+          title="Đóng modal"
           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 transition-colors"
         >
           <X className="w-4 h-4" />
@@ -325,14 +330,19 @@ export const ProModal: React.FC<ProModalProps> = ({
 
             {/* PRO Perks List */}
             <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50/70 to-orange-50/50 dark:from-slate-900/40 dark:to-slate-800/40 border border-amber-200/50 dark:border-amber-800/30">
-              <h4 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                <Crown className="w-4 h-4 text-amber-500" />
-                <span>Đặc quyền tài khoản PRO bao gồm</span>
-              </h4>
+              <div className="flex items-center justify-between mb-2.5">
+                <h4 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  <span>Đặc quyền tài khoản PRO bao gồm</span>
+                </h4>
+                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-white/70 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
+                  Bản Free: Tối đa 5 Boards
+                </span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span>Tạo không giới hạn Board & Thư mục</span>
+                  <span>Tạo <strong>không giới hạn</strong> Board & Thư mục</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                   <Headphones className="w-3.5 h-3.5 text-purple-500 shrink-0" />

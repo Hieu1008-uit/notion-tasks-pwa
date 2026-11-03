@@ -12,11 +12,16 @@ import {
   Zap,
   CalendarCheck2,
   Bot,
-  Layers
+  Layers,
+  Users,
+  Mic,
+  Sparkles,
+  Radio
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Task, Project, ThemeMode } from '../types';
 import { LofiPlayer } from './LofiPlayer';
+import { FocusPet } from './FocusPet';
 
 interface TodayViewProps {
   tasks: Task[];
@@ -36,6 +41,9 @@ interface TodayViewProps {
   theme: ThemeMode;
   onOpenAIModal?: () => void;
   onOpenTemplatesModal?: () => void;
+  onOpenVoiceModal?: () => void;
+  onOpenStudyRoomModal?: () => void;
+  onOpenWrappedModal?: () => void;
 }
 
 // Full-day coverage from 07:00 to 23:00 for the general timeline
@@ -63,6 +71,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
   theme,
   onOpenAIModal,
   onOpenTemplatesModal,
+  onOpenVoiceModal,
+  onOpenStudyRoomModal,
+  onOpenWrappedModal,
 }) => {
   const [isEditingMinutes, setIsEditingMinutes] = useState(false);
   const [customInputVal, setCustomInputVal] = useState(Math.floor(pomodoroSeconds / 60).toString());
@@ -297,16 +308,77 @@ export const TodayView: React.FC<TodayViewProps> = ({
         </div>
       )}
 
+      {/* Live Study Room Widget Banner (Study With Me & Đua Top YPT) */}
+      <div 
+        onClick={onOpenStudyRoomModal}
+        className="cursor-pointer group p-4 rounded-3xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-cyan-50/80 dark:from-slate-800/90 dark:via-indigo-950/30 dark:to-slate-800/90 border border-blue-200/70 dark:border-blue-900/40 shadow-xs hover:shadow-md transition-all hover:scale-[1.01] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+        title="Nhấn để mở Phòng học ảo & Bảng xếp hạng UIT"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0 group-hover:rotate-6 transition-transform">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100">
+                👥 28 sinh viên UIT đang tập trung cùng bạn
+              </span>
+              <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-2xs">
+                <Radio className="w-2.5 h-2.5 animate-pulse" />
+                Live
+              </span>
+            </div>
+            {/* Overlapping student avatar bubbles */}
+            <div className="flex items-center gap-2 mt-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+              <div className="flex -space-x-1.5 overflow-hidden py-0.5">
+                {['nam_uit', 'linh_uit', 'phuc_uit', 'tram_uit'].map((seed, i) => (
+                  <img
+                    key={i}
+                    src={`https://api.dicebear.com/7.x/notionists/svg?seed=${seed}`}
+                    alt="Friend"
+                    className="inline-block w-5 h-5 rounded-full ring-2 ring-white dark:ring-slate-800 bg-slate-200"
+                  />
+                ))}
+              </div>
+              <span className="opacity-90">
+                Nam (42m) • Linh (25m) • Khoa (58m)...
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenStudyRoomModal?.();
+            }}
+            className="text-xs font-bold px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-all group-hover:scale-105 cursor-pointer flex items-center gap-1"
+          >
+            <span>Vào phòng học ↗</span>
+          </button>
+        </div>
+      </div>
+
       {/* 1. Soft Minimalist Pomodoro Focus Bubble Card */}
       <div className="bg-white dark:bg-slate-800/90 rounded-3xl p-6 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-100 dark:border-slate-700/80 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-1 text-center md:text-left">
+        {/* Focus Mascot Pet with Sprout Evolution & Distraction Detection */}
+        <div className="shrink-0 flex justify-center">
+          <FocusPet
+            isTimerRunning={isTimerRunning}
+            pomodoroSeconds={pomodoroSeconds}
+            initialMinutes={25}
+          />
+        </div>
+
+        <div className="space-y-1 text-center md:text-left flex-1 min-w-0">
           <div className="flex items-center gap-2 justify-center md:justify-start">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
               Focus Timer
             </span>
           </div>
-          <div className="text-sm font-semibold text-slate-700 dark:text-slate-200 max-w-xs truncate">
+          <div className="text-sm font-semibold text-slate-700 dark:text-slate-200 max-w-xs truncate mx-auto md:mx-0">
             {activeTask ? activeTask.title : 'Chọn công việc để bắt đầu phiên tập trung'}
           </div>
         </div>
@@ -433,7 +505,27 @@ export const TodayView: React.FC<TodayViewProps> = ({
             </p>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {onOpenVoiceModal && (
+              <button
+                onClick={onOpenVoiceModal}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all hover:scale-102 shadow-2xs"
+                title="Lên lịch siêu tốc bằng giọng nói tiếng Việt"
+              >
+                <Mic className="w-3.5 h-3.5 text-rose-500" />
+                <span>Nói để lên lịch</span>
+              </button>
+            )}
+            {onOpenWrappedModal && (
+              <button
+                onClick={onOpenWrappedModal}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40 text-xs font-black hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-all hover:scale-102 shadow-2xs"
+                title="Xem tổng kết năng suất tuần phong cách Story 9:16 Spotify Wrapped"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                <span>Flex Story</span>
+              </button>
+            )}
             {onOpenAIModal && (
               <button
                 onClick={onOpenAIModal}

@@ -373,8 +373,8 @@ const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
 
 // For SPA routing fallback (PWA support)
-app.get('*', (req: Request, res: Response, next: NextFunction) => {
-  if (req.path.startsWith('/api')) {
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api')) {
     return next();
   }
   const indexHtml = path.join(distPath, 'index.html');
