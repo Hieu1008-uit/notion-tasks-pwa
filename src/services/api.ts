@@ -1,4 +1,4 @@
-import { User, UserData } from '../types';
+import type { User, UserData } from '../types';
 
 const TOKEN_KEY = 'pastel_auth_token';
 

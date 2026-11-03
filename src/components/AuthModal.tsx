@@ -309,9 +309,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/25 transition-all"
+                  disabled={isLoading}
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-xs shadow-md shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
                 >
-                  Xác nhận & Hoàn tất
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{isLoading ? 'Đang xác thực...' : 'Xác nhận & Hoàn tất'}</span>
                 </button>
               </form>
             )}
@@ -395,9 +397,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition-all"
+                disabled={isLoading}
+                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
               >
-                {tab === 'login' ? 'Đăng nhập ngay' : 'Tạo tài khoản'}
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>{isLoading ? 'Đang xử lý...' : (tab === 'login' ? 'Đăng nhập ngay' : 'Tạo tài khoản')}</span>
               </button>
             </form>
           </div>

@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"tsx server/index.ts\" \"vite --host\"",
+    "dev": "node server/start-dev.mjs",
     "client": "vite --host",
     "server": "tsx server/index.ts",
-    "tunnel": "concurrently \"tsx server/index.ts\" \"vite --host\" \"npx --yes localtunnel --port 5173\"",
+    "tunnel": "npx --yes localtunnel --port 5173",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

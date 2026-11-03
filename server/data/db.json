@@ -1,0 +1,37 @@
+{
+  "users": [
+    {
+      "id": "usr_1793695796382rfqx",
+      "name": "Nguyen Van UIT",
+      "email": "uit_student_1793695796113@uit.edu.vn",
+      "passwordHash": "$2b$10$T.kTuDvUt5x.tfS4ZM4RgOwpCCfic5ISCIVQlIyxzXpKg0O3WvX8S",
+      "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=Nguyen%20Van%20UIT",
+      "createdAt": "2026-11-03T08:49:56.382Z"
+    }
+  ],
+  "userData": {
+    "usr_1793695796382rfqx": {
+      "boards": [
+        {
+          "id": "board-sync-1",
+          "title": "Đồ án Java UIT",
+          "color": "bg-emerald-400",
+          "createdAt": "2026-11-03T08:49:56.406Z"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task-sync-1",
+          "title": "Hoàn thành báo cáo đồ án",
+          "time": "14:00",
+          "completed": false,
+          "boardId": "board-sync-1"
+        }
+      ],
+      "selectedBoardId": "board-sync-1",
+      "streakCount": 5,
+      "customTimes": {},
+      "lastUpdated": "2026-11-03T08:49:56.422Z"
+    }
+  }
+}
