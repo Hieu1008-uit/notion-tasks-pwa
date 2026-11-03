@@ -3,7 +3,12 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { JsonDB, StoredUser, StoredUserData } from './db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -360,6 +365,21 @@ app.put('/api/user/data', authenticateToken, (req: AuthenticatedRequest, res: Re
     success: true,
     data: updated,
     message: 'Đã đồng bộ dữ liệu lên đám mây!'
+  });
+});
+
+// Serve static frontend files in production or when dist exists
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+// For SPA routing fallback (PWA support)
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  const indexHtml = path.join(distPath, 'index.html');
+  res.sendFile(indexHtml, (err) => {
+    if (err) next();
   });
 });
 

@@ -7,6 +7,7 @@
     "dev": "node server/start-dev.mjs",
     "client": "vite --host",
     "server": "tsx server/index.ts",
+    "start": "tsx server/index.ts",
     "tunnel": "npx --yes localtunnel --port 5173",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
